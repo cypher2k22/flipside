@@ -11,7 +11,7 @@ import { planDay } from '../src/engine/planner.ts';
 import { ACCENTS, contrast, dark, light } from '../src/palette.ts';
 import { calibrate } from '../src/engine/detect.ts';
 import { black } from '../src/palette.ts';
-import { focusScore, hourWeekGrid, movingAvg, periodSummary } from '../src/stats.ts';
+import { focusScore, hourWeekGrid, movingAvg, periodSummary, scoreTrend } from '../src/stats.ts';
 import { cardsTsv, parseCardsText, parseCsv, parseSessionsCsv, reportMd, sessionsCsv, sessionsIcs } from '../src/exportfmt.ts';
 import { readFileSync } from 'node:fs';
 import { busySlots, parseIcs } from '../src/ics.ts';
@@ -211,6 +211,7 @@ assert.equal(hw[1][9], 30 * 60000); assert.equal(hw[1][10], 30 * 60000, 'monday 
 const fs0 = (q: number | null, breaks: number, min: number) => ({ task_id: 1, start_ts: 0, end_ts: min * 60000, heartbeat_ts: null, quality: q, breaks });
 assert.equal(focusScore([fs0(5, 0, 50)]), 100); assert.equal(focusScore([fs0(1, 1, 0)]), 0); assert.equal(focusScore([]), null);
 assert.ok(focusScore([fs0(null, 0, 25)])! > 40 && focusScore([fs0(null, 0, 25)])! < 70, 'unrated is neutral');
+{ const w = Date.UTC(2026, 0, 5), tt = scoreTrend([{ task_id: 1, start_ts: w + 1000, end_ts: w + 3000000, heartbeat_ts: null, quality: 5, breaks: 0 }], w, 3); assert.deepEqual(tt, [null, null, 100], 'scoreTrend: last slot is the given week'); }
 
 // black theme readable; app never asks for network
 for (const fg of ['text', 'muted', 'accentText', 'danger'] as const) for (const bg of ['bg', 'surface', 'surface2'] as const) assert.ok(contrast(black[fg], black[bg]) >= 4.5, `black: ${fg} on ${bg}`);

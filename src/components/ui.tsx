@@ -1,4 +1,4 @@
-import * as Haptics from 'expo-haptics';
+import { tapFeel } from '../engine/feel';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { Pressable, Text, View, type LayoutChangeEvent, type StyleProp, type TextProps, type ViewStyle } from 'react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
@@ -29,7 +29,7 @@ export function Txt({ v = 'body', c, style, raw, ...p }: TextProps & { v?: 'h1' 
   return <Text {...p} children={typeof p.children === 'string' && !raw ? tr(p.children) : p.children} style={[base, { color: c ?? (v === 'small' || v === 'label' ? t.muted : t.text) }, style]} />;
 }
 
-export const tap = () => { if (useSettings.getState().haptics) Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {}); };
+export const tap = tapFeel;
 
 export function Btn({ label, onPress, kind = 'primary', style, disabled }: {
   label: string; onPress: () => void; kind?: 'primary' | 'ghost' | 'danger'; style?: StyleProp<ViewStyle>; disabled?: boolean;

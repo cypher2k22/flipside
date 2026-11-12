@@ -9,6 +9,7 @@ import { planDay, type PTopic } from '../../engine/planner';
 import { scheduleSync } from '../../reminders';
 import { busyBetween, clearPlans, getDiary, plansForDate, saveDiary, setPlan } from '../../db';
 import { busySlots } from '../../ics';
+import { GoalsCard } from '../../components/GoalsCard';
 import { PlanTools } from '../../components/PlanTools';
 import { useData } from '../../data';
 import { actualSlots } from '../../stats';
@@ -127,6 +128,8 @@ function Plan() {
       </ScrollView>
 
       <TaskPicker tasks={tasks} selected={taskId} onSelect={(id) => useSettings.getState().set('lastTaskId', id)} />
+
+      <GoalsCard date={date} taskId={taskId} />
 
       <Card style={{ marginHorizontal: space(4), gap: space(2) }}>
         <Pressable onPress={() => { tap(); setAuto(!auto); }} style={{ minHeight: 40, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>

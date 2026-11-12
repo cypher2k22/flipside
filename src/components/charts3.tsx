@@ -1,5 +1,5 @@
 import { View } from 'react-native';
-import Svg, { Polyline, Rect } from 'react-native-svg';
+import Svg, { Circle, Polyline, Rect } from 'react-native-svg';
 import { weekdayLetter } from '../i18n';
 import { useTheme } from '../theme';
 import { Txt } from './ui';
@@ -21,6 +21,18 @@ export function HourWeekHeat({ grid, order }: { grid: number[][]; order: number[
         {[0, 6, 12, 18, 23].map((h) => <Txt key={h} v="small" raw>{String(h)}</Txt>)}
       </View>
     </View>
+  );
+}
+
+/** 0-100 score per week as a line with dots; gaps (null) are skipped. */
+export function ScoreLine({ values, height = 90 }: { values: (number | null)[]; height?: number }) {
+  const t = useTheme(), w = 300, step = w / Math.max(1, values.length - 1), y = (v: number) => height - 6 - (v / 100) * (height - 12);
+  const pts = values.flatMap((v, i) => (v == null ? [] : [[i * step, y(v)] as const]));
+  return (
+    <Svg width="100%" height={height} viewBox={`0 0 ${w} ${height}`} preserveAspectRatio="none" accessibilityLabel="Focus score by week">
+      <Polyline points={pts.map(([x, yy]) => `${x},${yy}`).join(' ')} fill="none" stroke={t.accentA} strokeWidth={2.5} />
+      {pts.map(([x, yy], i) => <Circle key={i} cx={x} cy={yy} r={3.5} fill={t.accentA} />)}
+    </Svg>
   );
 }
 

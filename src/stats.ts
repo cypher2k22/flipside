@@ -184,6 +184,10 @@ export function focusScore(ss: (Seg & { quality?: number | null; breaks?: number
   return Math.round(((q - 1) / 4) * 40 + clean * 30 + Math.min(1, len / 3000000) * 30);
 }
 
+/** Focus score per week for the n weeks ending with the week that starts at `weekStart` (null = no sessions). */
+export const scoreTrend = (ss: (Seg & { quality?: number | null; breaks?: number })[], weekStart: number, n: number) =>
+  Array.from({ length: n }, (_, i) => { const a = addDays(weekStart, (i - n + 1) * 7); return focusScore(sessionsIn(ss, a, addDays(a, 7))); });
+
 /** Totals for a "Wrapped" card: [from,to) window, subjects via rootOf. */
 export function periodSummary(ss: Seg[], from: number, to: number, rootOf: (id: number) => number) {
   const inside = sessionsIn(ss, from, to), n = Math.round((to - from) / DAY);

@@ -2,7 +2,7 @@ import { Platform } from 'react-native';
 import { requestWidgetUpdate } from 'react-native-android-widget';
 import { renderWidget } from './render';
 
-export const WIDGETS = ['Today', 'QuickStart', 'Week', 'Exam', 'Cards', 'Subjects'] as const;
+export const WIDGETS = ['Today', 'QuickStart', 'Week', 'Exam', 'Cards', 'Subjects', 'Goals', 'Metrics'] as const;
 
 let pending: ReturnType<typeof setTimeout> | null = null;
 /** Debounced: many writes in a row cause one redraw. */

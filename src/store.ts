@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { getSettings, setSetting } from './db';
 import type { Sound } from './engine/ambient';
 import type { Thresh } from './engine/detect';
+import type { HapticTheme, SoundTheme } from './engine/feel';
 import type { FontPref } from './fonts';
 import type { AccentPref } from './palette';
 import { set24h, setWeekStart } from './util';
@@ -20,7 +21,7 @@ export interface Settings {
   backupDir: string | null; lastBackup: number;
   fontPref: FontPref; accent: AccentPref; textScale: number; pomoBeep: boolean;
   vibrate: boolean; haptics: boolean; keepAwake: boolean; weekStart: 'mon' | 'sun'; clock24: boolean; lastError: string; secureScreen: boolean;
-  longBreakMin: number; longEvery: number; myPresets: { focus: number; brk: number }[]; flipReveal: boolean; widgetPrivate: boolean;
+  longBreakMin: number; longEvery: number; myPresets: { focus: number; brk: number }[]; flipReveal: boolean; widgetPrivate: boolean; hapticTheme: HapticTheme; soundTheme: SoundTheme; liftGraceSec: number;
   loaded: boolean;
 }
 const defaults: Settings = {
@@ -35,7 +36,7 @@ const defaults: Settings = {
   backupDir: null, lastBackup: 0,
   fontPref: 'default', accent: 'amber', textScale: 1, pomoBeep: true,
   vibrate: true, haptics: true, keepAwake: true, weekStart: 'mon', clock24: true, lastError: '', secureScreen: false,
-  longBreakMin: 15, longEvery: 0, myPresets: [], flipReveal: false, widgetPrivate: false,
+  longBreakMin: 15, longEvery: 0, myPresets: [], flipReveal: false, widgetPrivate: false, hapticTheme: 'classic', soundTheme: 'beep', liftGraceSec: 15,
   loaded: false,
 };
 /** Settings the pure helpers in util.ts need to know about. */

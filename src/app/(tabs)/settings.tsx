@@ -9,7 +9,8 @@ import { Segmented, Stepper, SwitchRow } from '../../components/controls';
 import { Btn, Card, Txt, tap } from '../../components/ui';
 import { DataCard } from '../../components/DataCard';
 import { previewAmbient, setAmbientVolume } from '../../engine/ambient';
-import { playBeep } from '../../engine/beep';
+import { FeelCard } from '../../components/FeelCard';
+import { WidgetsCard } from '../../components/WidgetsCard';
 import { dndGranted, openDndSettings } from '../../engine/focusmode';
 import { setFontPref } from '../../appearance';
 import { FONT_LABELS, type FontPref } from '../../fonts';
@@ -85,6 +86,7 @@ function Settings() {
         {s.calib && <Btn kind="ghost" label="Use preset instead" onPress={() => set('calib', null)} />}
         <SwitchRow label="Touch to start" hint="Tap to start and stop. No flip needed (music-friendly)." value={s.touchToStart} onChange={(v) => set('touchToStart', v)} />
         <SwitchRow label="Lift pauses instead of stopping" hint="Flip back down to resume the same session. Stopwatch and Flowtime only." value={s.pauseMode} onChange={(v) => set('pauseMode', v)} />
+        <Stepper label="Lift grace (flip back in time and nothing is lost)" value={s.liftGraceSec} unit="s" min={0} max={60} step={5} onChange={(v) => set('liftGraceSec', v)} />
         {s.pauseMode && <Stepper label="End after paused for" value={s.pauseGraceMin} unit="m" min={1} max={30} onChange={(v) => set('pauseGraceMin', v)} />}
       </Card>
 
@@ -102,8 +104,10 @@ function Settings() {
         {!allPresets(s.myPresets).some((p) => p.focus === s.focusMin && p.brk === s.breakMin) && <Btn kind="ghost" label="Save as preset" onPress={() => set('myPresets', [...s.myPresets, { focus: s.focusMin, brk: s.breakMin }])} />}
         {s.myPresets.length > 0 && <Txt v="small">Long-press one of your presets to remove it.</Txt>}
         <SwitchRow label="Beep when a focus or break ends" hint="Two short beeps at the end of each Pomodoro phase." value={s.pomoBeep} onChange={(v) => set('pomoBeep', v)} />
-        <Btn kind="ghost" label="Test beep" onPress={playBeep} />
       </Card>
+
+      <FeelCard i={4} />
+      <WidgetsCard i={4} />
 
       <Card i={4} style={pad}>
         <Txt v="label">Focus sound</Txt>

@@ -1,6 +1,7 @@
 import { FlexWidget, SvgWidget, TextWidget, type ColorProp } from 'react-native-android-widget';
 import { listCards, listExams, listTasks, migrate, sessionsBetween, getSettings } from '../db';
 import { dailyTotals, streaks, totalMs, WEEKDAY } from '../stats';
+import { renderMore } from './render2';
 import { addDays, daysUntil, fmtDur, startOfDay } from '../util';
 
 const C: Record<string, ColorProp> = { bg: '#14141C', surface2: '#1C1C27', text: '#F4F4F8', muted: '#8B8BA0', a: '#FFB547', b: '#FF6B6B' };
@@ -53,6 +54,7 @@ const Box = ({ children, uri }: { children: any; uri?: string }) => (
 );
 
 export async function renderWidget(name: string, width: number) {
+  if (name === 'Goals' || name === 'Metrics') return renderMore(name, width);
   const s = await snapshot();
   if (name === 'Exam') {
     const e = s.nextExam;

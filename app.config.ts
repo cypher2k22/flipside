@@ -2,9 +2,9 @@ import type { ExpoConfig } from 'expo/config';
 
 const NAME = 'Flipside';
 
-const widget = (name: string, label: string, w: number, h: number, cw: number, ch: number): any => ({
+const widget = (name: string, label: string, w: number, h: number, cw: number, ch: number, preview = name.toLowerCase()): any => ({
   name, label, minWidth: `${w}dp`, minHeight: `${h}dp`, targetCellWidth: cw, targetCellHeight: ch,
-  resizeMode: 'horizontal|vertical', previewImage: `./assets/widgets/${name.toLowerCase()}.png`,
+  resizeMode: 'horizontal|vertical', previewImage: `./assets/widgets/${preview}.png`,
   description: `${NAME} ${label}`, updatePeriodMillis: 1800000,
 });
 
@@ -49,6 +49,8 @@ const config: ExpoConfig = {
           widget('Exam', 'Next exam', 110, 110, 2, 2),
           widget('Cards', 'Cards due', 110, 40, 2, 1),
           widget('Subjects', 'Subjects', 250, 40, 4, 1),
+          widget('Goals', 'Goals', 250, 110, 4, 2, 'week'),
+          widget('Metrics', 'Weekly metrics', 250, 110, 4, 2, 'week'),
         ],
       },
     ],

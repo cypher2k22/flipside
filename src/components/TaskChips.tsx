@@ -6,13 +6,13 @@ import { tr } from '../i18n';
 import { categoryColors, font, radius, space, useTheme } from '../theme';
 import { Btn, Txt, tap } from './ui';
 
-export function TaskChips({ tasks, selected, onSelect, onAdd, disabled, allowNone, simple }: {
+export function TaskChips({ tasks, selected, onSelect, onAdd, disabled, allowNone, simple, onLong }: {
   tasks: Task[]; selected: number | null; onSelect: (id: number) => void;
-  onAdd: (name: string, category: string, color: string) => void; disabled?: boolean; allowNone?: boolean; simple?: boolean;
+  onAdd: (name: string, category: string, color: string) => void; disabled?: boolean; allowNone?: boolean; simple?: boolean; onLong?: (id: number) => void;
 }) {
   const t = useTheme();
   const [open, setOpen] = useState(false);
-  const list = allowNone ? [{ id: 0, name: 'No task', category: '', color: t.muted, created_at: 0, archived: 0, parent_id: null, done: 0 }, ...tasks] : tasks;
+  const list = allowNone ? [{ id: 0, name: 'No task', category: '', color: t.muted, created_at: 0, archived: 0, parent_id: null, done: 0, weekly_goal_min: 0, pinned: 0 }, ...tasks] : tasks;
   const [name, setName] = useState(''), [cat, setCat] = useState(''), [color, setColor] = useState(categoryColors[0]);
   const save = () => {
     if (!name.trim()) return;
@@ -26,11 +26,11 @@ export function TaskChips({ tasks, selected, onSelect, onAdd, disabled, allowNon
           const on = k.id === selected;
           return (
             <Animated.View key={k.id} layout={LinearTransition.springify()}>
-              <Pressable disabled={disabled} accessibilityLabel={`Task ${k.name}`} onPress={() => { tap(); onSelect(k.id); }}
+              <Pressable disabled={disabled} accessibilityLabel={`Task ${k.name}`} onPress={() => { tap(); onSelect(k.id); }} onLongPress={k.id && onLong ? () => { tap(); onLong(k.id); } : undefined}
                 style={{ minHeight: 48, flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: space(4), borderRadius: radius.pill,
                   backgroundColor: on ? k.color : t.surface, borderWidth: 1, borderColor: on ? k.color : t.border, opacity: disabled && !on ? 0.4 : 1 }}>
                 <View style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: on ? '#1A1206' : k.color }} />
-                <Txt v="h3" raw c={on ? '#1A1206' : t.text}>{k.id === 0 ? tr('No task') : k.name}</Txt>
+                <Txt v="h3" raw c={on ? '#1A1206' : t.text}>{k.id === 0 ? tr('No task') : `${k.pinned ? '★ ' : ''}${k.name}`}</Txt>
               </Pressable>
             </Animated.View>
           );

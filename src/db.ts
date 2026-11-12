@@ -1,6 +1,6 @@
 import * as SQLite from 'expo-sqlite';
 
-export interface Task { id: number; name: string; category: string; color: string; created_at: number; archived: number; parent_id: number | null; done: number; weekly_goal_min: number }
+export interface Task { id: number; name: string; category: string; color: string; created_at: number; archived: number; parent_id: number | null; done: number; weekly_goal_min: number; pinned: number }
 export interface Session { id: number; task_id: number; start_ts: number; end_ts: number | null; heartbeat_ts: number | null; mode: string; quality: number | null; note: string; breaks: number }
 export interface Card { id: number; task_id: number; front: string; back: string; due: number; ease: number; interval: number; reps: number; lapses: number; created_at: number; last_review: number | null; stability: number | null; difficulty: number | null; front_img: string | null; back_img: string | null }
 export interface Exam { id: number; name: string; date: string; task_id: number }
@@ -8,7 +8,7 @@ export interface Plan { id: number; task_id: number; date: string; slot: number 
 export interface Diary { date: string; l1: string; l2: string; l3: string }
 
 let dbp: Promise<SQLite.SQLiteDatabase> | null = null;
-const db = () => (dbp ??= SQLite.openDatabaseAsync('flipside.db'));
+export const db = () => (dbp ??= SQLite.openDatabaseAsync('flipside.db'));
 
 const MIGRATIONS = [
   `CREATE TABLE tasks(id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, category TEXT NOT NULL DEFAULT '', color TEXT NOT NULL, created_at INTEGER NOT NULL, archived INTEGER NOT NULL DEFAULT 0);
@@ -33,6 +33,11 @@ const MIGRATIONS = [
    ALTER TABLE cards ADD COLUMN back_img TEXT;`,
   `CREATE TABLE busy(id INTEGER PRIMARY KEY AUTOINCREMENT, start_ts INTEGER NOT NULL, end_ts INTEGER NOT NULL, title TEXT NOT NULL DEFAULT '');
    CREATE INDEX idx_busy_start ON busy(start_ts);`,
+  `CREATE TABLE goals(id INTEGER PRIMARY KEY AUTOINCREMENT, scope TEXT NOT NULL, period TEXT NOT NULL, text TEXT NOT NULL, done INTEGER NOT NULL DEFAULT 0, task_id INTEGER NOT NULL DEFAULT 0);
+   CREATE INDEX idx_goals_period ON goals(scope, period);
+   ALTER TABLE tasks ADD COLUMN pinned INTEGER NOT NULL DEFAULT 0;`,
+  `CREATE TABLE lifts(id INTEGER PRIMARY KEY AUTOINCREMENT, session_id INTEGER NOT NULL DEFAULT 0, ts INTEGER NOT NULL, dur_ms INTEGER, reason TEXT NOT NULL DEFAULT '');
+   CREATE INDEX idx_lifts_ts ON lifts(ts);`,
 ];
 
 export async function migrate() {
@@ -57,6 +62,7 @@ export async function addTask(name: string, category: string, color: string, par
 }
 export const archiveTask = async (id: number) => void (await (await db()).runAsync('UPDATE tasks SET archived=1 WHERE id=? OR parent_id=?', id, id));
 export const setWeeklyGoal = async (id: number, min: number) => void (await (await db()).runAsync('UPDATE tasks SET weekly_goal_min=? WHERE id=?', min, id));
+export const setPinned = async (id: number, on: boolean) => void (await (await db()).runAsync('UPDATE tasks SET pinned=? WHERE id=?', on ? 1 : 0, id));
 export const setTopicDone = async (id: number, done: boolean) => void (await (await db()).runAsync('UPDATE tasks SET done=? WHERE id=?', done ? 1 : 0, id));
 
 // exams
@@ -141,7 +147,7 @@ export const setSetting = async (k: string, v: string) =>
   void (await (await db()).runAsync('INSERT OR REPLACE INTO settings(key,value) VALUES(?,?)', k, v));
 
 // export / import / reset
-const TABLES = ['tasks', 'sessions', 'plans', 'diary', 'settings', 'exams', 'cards', 'reviews', 'busy'] as const;
+const TABLES = ['tasks', 'sessions', 'plans', 'diary', 'settings', 'exams', 'cards', 'reviews', 'busy', 'goals', 'lifts'] as const;
 export async function exportAll() {
   const d = await db();
   const out: Record<string, unknown[]> = {};
@@ -217,7 +223,7 @@ export async function mergeAll(json: string) {
 }
 
 /** Puts a deleted row back exactly as it was (used by Undo). */
-export async function restoreRow(table: 'sessions' | 'cards' | 'exams', row: object) {
+export async function restoreRow(table: 'sessions' | 'cards' | 'exams' | 'goals', row: object) {
   const cols = Object.keys(row);
   await (await db()).runAsync(`INSERT OR REPLACE INTO ${table}(${cols.join(',')}) VALUES(${cols.map(() => '?').join(',')})`, ...cols.map((c) => (row as any)[c]));
 }
