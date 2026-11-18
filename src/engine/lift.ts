@@ -5,6 +5,8 @@ import { useSettings } from '../store';
 let grace = false, openAt = 0, openId: number | null = null, timer: ReturnType<typeof setTimeout> | null = null;
 
 export const inGrace = () => grace;
+/** Lift moment while in grace (clock freezes here), else null. */
+export const graceFrom = () => (grace ? openAt : null);
 export function liftStart(sessionId: number | null, expire: (at: number) => void) {
   grace = true; openAt = Date.now(); openId = null;
   addLift(sessionId ?? 0, openAt).then((id) => { openId = id; });

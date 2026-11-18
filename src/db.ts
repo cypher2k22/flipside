@@ -61,6 +61,11 @@ export async function addTask(name: string, category: string, color: string, par
   return r.lastInsertRowId;
 }
 export const archiveTask = async (id: number) => void (await (await db()).runAsync('UPDATE tasks SET archived=1 WHERE id=? OR parent_id=?', id, id));
+export const updateTask = async (id: number, name: string, color: string) => {
+  const d = await db();
+  await d.runAsync('UPDATE tasks SET name=?, color=? WHERE id=?', name, color, id);
+  await d.runAsync('UPDATE tasks SET color=? WHERE parent_id=?', color, id); // topics inherit subject colour
+};
 export const setWeeklyGoal = async (id: number, min: number) => void (await (await db()).runAsync('UPDATE tasks SET weekly_goal_min=? WHERE id=?', min, id));
 export const setPinned = async (id: number, on: boolean) => void (await (await db()).runAsync('UPDATE tasks SET pinned=? WHERE id=?', on ? 1 : 0, id));
 export const setTopicDone = async (id: number, done: boolean) => void (await (await db()).runAsync('UPDATE tasks SET done=? WHERE id=?', done ? 1 : 0, id));

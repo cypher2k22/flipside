@@ -6,6 +6,7 @@ import { Btn, Card, EmptyState, Txt, tap } from '../../components/ui';
 import { addExam, addTask, archiveTask, deleteExam, restoreRow, setTopicDone, setWeeklyGoal, unarchiveTask } from '../../db';
 import { useUndo } from '../../undo';
 import { Stepper } from '../../components/controls';
+import { TaskEdit } from '../../components/TaskEdit';
 import { useData } from '../../data';
 import { totalMs } from '../../stats';
 import { categoryColors, font, radius, space, useTheme } from '../../theme';
@@ -19,7 +20,7 @@ function Study() {
   const { tasks, sessions, exams, cards, reload } = useData();
   const dueCards = cards.filter((c) => c.due <= Date.now()).length;
   const subjects = tasks.filter((k) => !k.parent_id);
-  const [open, setOpen] = useState<number | null>(null);
+  const [open, setOpen] = useState<number | null>(null), [editTopic, setEditTopic] = useState<number | null>(null);
   const [newSub, setNewSub] = useState(''), [newTopic, setNewTopic] = useState('');
   const [exam, setExam] = useState(false), [en, setEn] = useState(''), [ed, setEd] = useState(''), [es, setEs] = useState<number | null>(null);
 
@@ -111,11 +112,12 @@ function Study() {
               </Pressable>
               {isOpen && (
                 <View style={{ gap: 4 }}>
+                  <TaskEdit key={`${s.id}${s.name}${s.color}`} task={s} />
                   <Stepper label="Weekly target" value={s.weekly_goal_min / 60} unit="h" min={0} max={60} step={0.5} onChange={(h) => done(() => setWeeklyGoal(s.id, Math.round(h * 60)))} />
                   {topics.map((k) => {
                     const x = info.get(k.id);
-                    return (
-                      <Pressable key={k.id} onPress={() => { tap(); done(() => setTopicDone(k.id, !k.done)); }} onLongPress={() => confirmDel(k.name, () => archiveTask(k.id), () => unarchiveTask(k.id))}
+                    return (<View key={k.id}>
+                      <Pressable onPress={() => { tap(); done(() => setTopicDone(k.id, !k.done)); }} onLongPress={() => confirmDel(k.name, () => archiveTask(k.id), () => unarchiveTask(k.id))}
                         accessibilityRole="checkbox" accessibilityState={{ checked: !!k.done }} accessibilityLabel={k.name}
                         style={{ flexDirection: 'row', alignItems: 'center', gap: space(3), minHeight: 48 }}>
                         <View style={{ width: 24, height: 24, borderRadius: 8, borderWidth: 2, borderColor: k.done ? t.success : t.dotOff, backgroundColor: k.done ? t.success : 'transparent', alignItems: 'center', justifyContent: 'center' }}>
@@ -125,8 +127,10 @@ function Study() {
                           <Txt style={{ textDecorationLine: k.done ? 'line-through' : 'none', opacity: k.done ? 0.6 : 1 }} raw>{k.name}</Txt>
                           <Txt v="small" raw>{x ? `${fmtDur(x.ms)} · ${tr('last {when}', { when: agoLabel(x.last) })}` : tr('not studied yet')}</Txt>
                         </View>
+                        <Pressable onPress={() => setEditTopic(editTopic === k.id ? null : k.id)} accessibilityLabel="Edit" hitSlop={8}><Txt v="h3" c={t.muted}>✎</Txt></Pressable>
                       </Pressable>
-                    );
+                      {editTopic === k.id && <TaskEdit key={`${k.id}${k.name}`} task={k} topic />}
+                    </View>);
                   })}
                   <View style={{ flexDirection: 'row', gap: space(2), marginTop: space(1) }}>
                     <TextInput value={newTopic} onChangeText={setNewTopic} placeholder={tr('New topic')} placeholderTextColor={t.muted} style={[input, { flex: 1 }]}

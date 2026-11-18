@@ -13,7 +13,7 @@ import { refreshWidgets } from '../widgets/refresh';
 import { pauseAmbient, playAmbient, stopAmbient } from './ambient';
 import { playBeep } from './beep';
 import { cue } from './feel';
-import { inGrace, liftClose, liftReset, liftStart } from './lift';
+import { graceFrom, inGrace, liftClose, liftReset, liftStart } from './lift';
 import { startBackground, stopBackground } from './background';
 import { Detector, THRESH } from './detect';
 import { setDnd } from './focusmode';
@@ -149,7 +149,7 @@ export const useFlip = create<Flip>((set, get) => ({
     beat = setInterval(() => { const sid = get().sessionId; if (sid != null) heartbeat(sid, Date.now()); }, 15000);
     tick = setInterval(() => {
       const t = Date.now(), g = get();
-      set({ now: t });
+      set({ now: graceFrom() ?? t }); // lifted: clock stops at the lift; flip back inside grace and it catches up
       if (g.mode === 'pomodoro') advance(t);
       else if (g.status === 'PAUSED' && g.pausedAt && t - g.pausedAt > useSettings.getState().pauseGraceMin * 60000) g.end();
     }, 250);
