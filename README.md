@@ -2,6 +2,10 @@
 
 A study timer you start by putting your phone face-down.
 
+![demo](docs/demo.gif)
+
+**Install (Android):** [Download FlipSide.apk](https://github.com/shanthoshkv/flipside/releases/latest/download/FlipSide.apk)
+
 I kept losing focus every time I picked up my phone to start a timer, so I built one that works the other way round. Lay the phone screen-down on your desk and the clock starts. Pick it up and it stops. That's the whole idea, and everything else in the app grows around it.
 
 No account, no ads, no tracking. The app doesn't even have permission to use the internet, so your data stays on your phone.
